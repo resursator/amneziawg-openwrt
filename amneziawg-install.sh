@@ -102,36 +102,65 @@ configure_amneziawg_interface() {
     PROTO="amneziawg"
     ZONE_NAME="awg3"
 
-    read -r -p "Enter the private key (from [Interface]):"$'\n' AWG_PRIVATE_KEY_INT
+    if [ -n "$AWG_CONFIG_FILE" ] && [ -f "$AWG_CONFIG_FILE" ]; then
+        echo "Parsing config file"
+        parse_awg_config "$AWG_CONFIG_FILE"
 
-    while true; do
-        read -r -p "Enter internal IP address with subnet, example 192.168.100.5/24 (from [Interface]):"$'\n' AWG_IP
-        if echo "$AWG_IP" | egrep -oq '^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]+$'; then
-            break
-        else
-            echo "This IP is not valid. Please repeat"
+        # Интерфейс
+        AWG_PRIVATE_KEY_INT=$(awk -F' *= *' '/PrivateKey/ {print $2}' "$AWG_CONFIG_FILE")
+        AWG_IP=$(awk -F' *= *' '/Address/ {print $2}' "$AWG_CONFIG_FILE")
+
+        AWG_JC=$(awk -F' *= *' '/Jc/ {print $2}' "$AWG_CONFIG_FILE")
+        AWG_JMIN=$(awk -F' *= *' '/Jmin/ {print $2}' "$AWG_CONFIG_FILE")
+        AWG_JMAX=$(awk -F' *= *' '/Jmax/ {print $2}' "$AWG_CONFIG_FILE")
+        AWG_S1=$(awk -F' *= *' '/S1/ {print $2}' "$AWG_CONFIG_FILE")
+        AWG_S2=$(awk -F' *= *' '/S2/ {print $2}' "$AWG_CONFIG_FILE")
+        AWG_H1=$(awk -F' *= *' '/H1/ {print $2}' "$AWG_CONFIG_FILE")
+        AWG_H2=$(awk -F' *= *' '/H2/ {print $2}' "$AWG_CONFIG_FILE")
+        AWG_H3=$(awk -F' *= *' '/H3/ {print $2}' "$AWG_CONFIG_FILE")
+        AWG_H4=$(awk -F' *= *' '/H4/ {print $2}' "$AWG_CONFIG_FILE")
+
+        # Пир
+        AWG_PUBLIC_KEY_INT=$(awk -F' *= *' '/PublicKey/ {print $2}' "$AWG_CONFIG_FILE")
+        AWG_PRESHARED_KEY_INT=$(awk -F' *= *' '/PresharedKey/ {print $2}' "$AWG_CONFIG_FILE")
+        AWG_ENDPOINT_INT=$(awk -F'[: ]' '/Endpoint/ {print $1}' "$AWG_CONFIG_FILE")
+        AWG_ENDPOINT_PORT_INT=$(awk -F'[: ]' '/Endpoint/ {print $2}' "$AWG_CONFIG_FILE")
+        AWG_ENDPOINT_PORT_INT=${AWG_ENDPOINT_PORT_INT:-51820}
+    else
+        # Старый вариант с интерактивным вводом
+        echo "No config file provided or not found, using interactive mode"
+
+        read -r -p "Enter the private key (from [Interface]):"$'\n' AWG_PRIVATE_KEY_INT
+
+        while true; do
+            read -r -p "Enter internal IP address with subnet, example 192.168.100.5/24 (from [Interface]):"$'\n' AWG_IP
+            if echo "$AWG_IP" | egrep -oq '^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]+$'; then
+                break
+            else
+                echo "This IP is not valid. Please repeat"
+            fi
+        done
+
+        read -r -p "Enter the public key (from [Peer]):"$'\n' AWG_PUBLIC_KEY_INT
+        read -r -p "If use PresharedKey, Enter this (from [Peer]). If your don't use leave blank:"$'\n' AWG_PRESHARED_KEY_INT
+        read -r -p "Enter Endpoint host without port (Domain or IP) (from [Peer]):"$'\n' AWG_ENDPOINT_INT
+
+        read -r -p "Enter Endpoint host port (from [Peer]) [51820]:"$'\n' AWG_ENDPOINT_PORT_INT
+        AWG_ENDPOINT_PORT_INT=${AWG_ENDPOINT_PORT_INT:-51820}
+        if [ "$AWG_ENDPOINT_PORT_INT" = '51820' ]; then
+            echo $AWG_ENDPOINT_PORT_INT
         fi
-    done
 
-    read -r -p "Enter the public key (from [Peer]):"$'\n' AWG_PUBLIC_KEY_INT
-    read -r -p "If use PresharedKey, Enter this (from [Peer]). If your don't use leave blank:"$'\n' AWG_PRESHARED_KEY_INT
-    read -r -p "Enter Endpoint host without port (Domain or IP) (from [Peer]):"$'\n' AWG_ENDPOINT_INT
-
-    read -r -p "Enter Endpoint host port (from [Peer]) [51820]:"$'\n' AWG_ENDPOINT_PORT_INT
-    AWG_ENDPOINT_PORT_INT=${AWG_ENDPOINT_PORT_INT:-51820}
-    if [ "$AWG_ENDPOINT_PORT_INT" = '51820' ]; then
-        echo $AWG_ENDPOINT_PORT_INT
+        read -r -p "Enter Jc value (from [Interface]):"$'\n' AWG_JC
+        read -r -p "Enter Jmin value (from [Interface]):"$'\n' AWG_JMIN
+        read -r -p "Enter Jmax value (from [Interface]):"$'\n' AWG_JMAX
+        read -r -p "Enter S1 value (from [Interface]):"$'\n' AWG_S1
+        read -r -p "Enter S2 value (from [Interface]):"$'\n' AWG_S2
+        read -r -p "Enter H1 value (from [Interface]):"$'\n' AWG_H1
+        read -r -p "Enter H2 value (from [Interface]):"$'\n' AWG_H2
+        read -r -p "Enter H3 value (from [Interface]):"$'\n' AWG_H3
+        read -r -p "Enter H4 value (from [Interface]):"$'\n' AWG_H4
     fi
-
-    read -r -p "Enter Jc value (from [Interface]):"$'\n' AWG_JC
-    read -r -p "Enter Jmin value (from [Interface]):"$'\n' AWG_JMIN
-    read -r -p "Enter Jmax value (from [Interface]):"$'\n' AWG_JMAX
-    read -r -p "Enter S1 value (from [Interface]):"$'\n' AWG_S1
-    read -r -p "Enter S2 value (from [Interface]):"$'\n' AWG_S2
-    read -r -p "Enter H1 value (from [Interface]):"$'\n' AWG_H1
-    read -r -p "Enter H2 value (from [Interface]):"$'\n' AWG_H2
-    read -r -p "Enter H3 value (from [Interface]):"$'\n' AWG_H3
-    read -r -p "Enter H4 value (from [Interface]):"$'\n' AWG_H4
     
     uci set network.${INTERFACE_NAME}=interface
     uci set network.${INTERFACE_NAME}.proto=$PROTO
@@ -195,14 +224,22 @@ check_repo
 
 install_awg_packages
 
-printf "\033[32;1mDo you want to configure the amneziawg interface? (y/n): \033[0m\n"
-read IS_SHOULD_CONFIGURE_AWG_INTERFACE
+read -r -p "Config file path (empty = manual setup, e.g. ~/amnezia_for_awg.conf): " AWG_CONFIG_FILE
 
-if [ "$IS_SHOULD_CONFIGURE_AWG_INTERFACE" = "y" ] || [ "$IS_SHOULD_CONFIGURE_AWG_INTERFACE" = "Y" ]; then
+if [ -n "$AWG_CONFIG_FILE" ] && [ -f "$AWG_CONFIG_FILE" ]; then
+    echo "Using config file: $AWG_CONFIG_FILE"
     configure_amneziawg_interface
 else
-    printf "\033[32;1mSkipping amneziawg interface configuration.\033[0m\n"
+    printf "\033[32;1mConfigure amneziawg interface now? (y/n): \033[0m"
+    read IS_SHOULD_CONFIGURE_AWG_INTERFACE
+
+    if [ "$IS_SHOULD_CONFIGURE_AWG_INTERFACE" = "y" ] || [ "$IS_SHOULD_CONFIGURE_AWG_INTERFACE" = "Y" ]; then
+        configure_amneziawg_interface
+    else
+        printf "\033[32;1mSkipping amneziawg interface configuration.\033[0m\n"
+    fi
 fi
+
 
 echo -e "${YELLOW}To start the AWG interface, you need to restart your router. Do you want to do this now? (y/n): ${RESET}"
 read RESTART_ROUTER
