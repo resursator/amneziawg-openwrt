@@ -106,7 +106,6 @@ configure_amneziawg_interface() {
 
     if [ -n "$cfg_file" ] && [ -f "$cfg_file" ]; then
         echo "Parsing config file"
-        parse_awg_config "$cfg_file"
 
         # Интерфейс
         AWG_PRIVATE_KEY_INT=$(awk -F= '/PrivateKey/ {print substr($0, index($0,$2))}' "$AWG_CONFIG_FILE")
