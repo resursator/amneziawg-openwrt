@@ -108,24 +108,24 @@ configure_amneziawg_interface() {
         echo "Parsing config file"
 
         # Интерфейс
-        AWG_PRIVATE_KEY_INT=$(awk -F= '/PrivateKey/ {print substr($0, index($0,$2))}' "$AWG_CONFIG_FILE")
-        AWG_IP=$(awk -F' *= *' '/Address/ {print $2}' "$AWG_CONFIG_FILE")
+        AWG_PRIVATE_KEY_INT=$(awk -F= '/PrivateKey/ {print substr($0, index($0,$2))}' "$cfg_file")
+        AWG_IP=$(awk -F' *= *' '/Address/ {print $2}' "$cfg_file")
 
-        AWG_JC=$(awk -F' *= *' '/Jc/ {print $2}' "$AWG_CONFIG_FILE")
-        AWG_JMIN=$(awk -F' *= *' '/Jmin/ {print $2}' "$AWG_CONFIG_FILE")
-        AWG_JMAX=$(awk -F' *= *' '/Jmax/ {print $2}' "$AWG_CONFIG_FILE")
-        AWG_S1=$(awk -F' *= *' '/S1/ {print $2}' "$AWG_CONFIG_FILE")
-        AWG_S2=$(awk -F' *= *' '/S2/ {print $2}' "$AWG_CONFIG_FILE")
-        AWG_H1=$(awk -F' *= *' '/H1/ {print $2}' "$AWG_CONFIG_FILE")
-        AWG_H2=$(awk -F' *= *' '/H2/ {print $2}' "$AWG_CONFIG_FILE")
-        AWG_H3=$(awk -F' *= *' '/H3/ {print $2}' "$AWG_CONFIG_FILE")
-        AWG_H4=$(awk -F' *= *' '/H4/ {print $2}' "$AWG_CONFIG_FILE")
+        AWG_JC=$(awk -F' *= *' '/Jc/ {print $2}' "$cfg_file")
+        AWG_JMIN=$(awk -F' *= *' '/Jmin/ {print $2}' "$cfg_file")
+        AWG_JMAX=$(awk -F' *= *' '/Jmax/ {print $2}' "$cfg_file")
+        AWG_S1=$(awk -F' *= *' '/S1/ {print $2}' "$cfg_file")
+        AWG_S2=$(awk -F' *= *' '/S2/ {print $2}' "$cfg_file")
+        AWG_H1=$(awk -F' *= *' '/H1/ {print $2}' "$cfg_file")
+        AWG_H2=$(awk -F' *= *' '/H2/ {print $2}' "$cfg_file")
+        AWG_H3=$(awk -F' *= *' '/H3/ {print $2}' "$cfg_file")
+        AWG_H4=$(awk -F' *= *' '/H4/ {print $2}' "$cfg_file")
 
         # Пир
-        AWG_PUBLIC_KEY_INT=$(awk -F= '/PublicKey/ {print substr($0, index($0,$2))}' "$AWG_CONFIG_FILE")
-        AWG_PRESHARED_KEY_INT=$(awk -F= '/PresharedKey/ {print substr($0, index($0,$2))}' "$AWG_CONFIG_FILE")
-        AWG_ENDPOINT_INT=$(awk -F'[: ]' '/Endpoint/ {print $1}' "$AWG_CONFIG_FILE")
-        AWG_ENDPOINT_PORT_INT=$(awk -F'[: ]' '/Endpoint/ {print $2}' "$AWG_CONFIG_FILE")
+        AWG_PUBLIC_KEY_INT=$(awk -F= '/PublicKey/ {print substr($0, index($0,$2))}' "$cfg_file")
+        AWG_PRESHARED_KEY_INT=$(awk -F= '/PresharedKey/ {print substr($0, index($0,$2))}' "$cfg_file")
+        AWG_ENDPOINT_INT=$(awk -F'[: ]' '/Endpoint/ {print $1}' "$cfg_file")
+        AWG_ENDPOINT_PORT_INT=$(awk -F'[: ]' '/Endpoint/ {print $2}' "$cfg_file")
         AWG_ENDPOINT_PORT_INT=${AWG_ENDPOINT_PORT_INT:-51820}
     else
         echo "No config file provided or not found, using interactive mode"
