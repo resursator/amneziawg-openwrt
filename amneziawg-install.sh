@@ -97,14 +97,16 @@ install_awg_packages() {
 }
 
 configure_amneziawg_interface() {
+    local cfg_file="$1"
+
     INTERFACE_NAME="awg3"
     CONFIG_NAME="amneziawg_awg3"
     PROTO="amneziawg"
     ZONE_NAME="awg3"
 
-    if [ -n "$AWG_CONFIG_FILE" ] && [ -f "$AWG_CONFIG_FILE" ]; then
+    if [ -n "$cfg_file" ] && [ -f "$cfg_file" ]; then
         echo "Parsing config file"
-        parse_awg_config "$AWG_CONFIG_FILE"
+        parse_awg_config "$cfg_file"
 
         # Интерфейс
         AWG_PRIVATE_KEY_INT=$(awk -F' *= *' '/PrivateKey/ {print $2}' "$AWG_CONFIG_FILE")
@@ -127,7 +129,6 @@ configure_amneziawg_interface() {
         AWG_ENDPOINT_PORT_INT=$(awk -F'[: ]' '/Endpoint/ {print $2}' "$AWG_CONFIG_FILE")
         AWG_ENDPOINT_PORT_INT=${AWG_ENDPOINT_PORT_INT:-51820}
     else
-        # Старый вариант с интерактивным вводом
         echo "No config file provided or not found, using interactive mode"
 
         read -r -p "Enter the private key (from [Interface]):"$'\n' AWG_PRIVATE_KEY_INT
