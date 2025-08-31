@@ -109,7 +109,7 @@ configure_amneziawg_interface() {
         parse_awg_config "$cfg_file"
 
         # Интерфейс
-        AWG_PRIVATE_KEY_INT=$(awk -F' *= *' '/PrivateKey/ {print $2}' "$AWG_CONFIG_FILE")
+        AWG_PRIVATE_KEY_INT=$(awk -F= '/PrivateKey/ {print substr($0, index($0,$2))}' "$AWG_CONFIG_FILE")
         AWG_IP=$(awk -F' *= *' '/Address/ {print $2}' "$AWG_CONFIG_FILE")
 
         AWG_JC=$(awk -F' *= *' '/Jc/ {print $2}' "$AWG_CONFIG_FILE")
@@ -123,8 +123,8 @@ configure_amneziawg_interface() {
         AWG_H4=$(awk -F' *= *' '/H4/ {print $2}' "$AWG_CONFIG_FILE")
 
         # Пир
-        AWG_PUBLIC_KEY_INT=$(awk -F' *= *' '/PublicKey/ {print $2}' "$AWG_CONFIG_FILE")
-        AWG_PRESHARED_KEY_INT=$(awk -F' *= *' '/PresharedKey/ {print $2}' "$AWG_CONFIG_FILE")
+        AWG_PUBLIC_KEY_INT=$(awk -F= '/PublicKey/ {print substr($0, index($0,$2))}' "$AWG_CONFIG_FILE")
+        AWG_PRESHARED_KEY_INT=$(awk -F= '/PresharedKey/ {print substr($0, index($0,$2))}' "$AWG_CONFIG_FILE")
         AWG_ENDPOINT_INT=$(awk -F'[: ]' '/Endpoint/ {print $1}' "$AWG_CONFIG_FILE")
         AWG_ENDPOINT_PORT_INT=$(awk -F'[: ]' '/Endpoint/ {print $2}' "$AWG_CONFIG_FILE")
         AWG_ENDPOINT_PORT_INT=${AWG_ENDPOINT_PORT_INT:-51820}
