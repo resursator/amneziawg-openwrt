@@ -226,9 +226,11 @@ install_awg_packages
 
 read -r -p "Config file path (empty = manual setup, e.g. ~/amnezia_for_awg.conf): " AWG_CONFIG_FILE
 
+AWG_CONFIG_FILE=$(eval echo "$AWG_CONFIG_FILE")
+
 if [ -n "$AWG_CONFIG_FILE" ] && [ -f "$AWG_CONFIG_FILE" ]; then
     echo "Using config file: $AWG_CONFIG_FILE"
-    configure_amneziawg_interface
+    configure_amneziawg_interface "$AWG_CONFIG_FILE"
 else
     printf "\033[32;1mConfigure amneziawg interface now? (y/n): \033[0m"
     read IS_SHOULD_CONFIGURE_AWG_INTERFACE
