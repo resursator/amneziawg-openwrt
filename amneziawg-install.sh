@@ -108,7 +108,7 @@ configure_amneziawg_interface() {
         echo "Parsing config file"
 
         # Интерфейс
-        AWG_PRIVATE_KEY_INT=$(awk -F= '/PrivateKey/ {print substr($0, index($0,$2))}' "$cfg_file")
+        AWG_PRIVATE_KEY_INT=$(awk -F= '/PrivateKey/ {val=substr($0,index($0,$2)); gsub(/^[ \t]+|[ \t\r\n]+$/,"",val); print val}' "$cfg_file")
         AWG_IP=$(awk -F' *= *' '/Address/ {print $2}' "$cfg_file")
 
         AWG_JC=$(awk -F' *= *' '/Jc/ {print $2}' "$cfg_file")
@@ -122,8 +122,8 @@ configure_amneziawg_interface() {
         AWG_H4=$(awk -F' *= *' '/H4/ {print $2}' "$cfg_file")
 
         # Пир
-        AWG_PUBLIC_KEY_INT=$(awk -F= '/PublicKey/ {print substr($0, index($0,$2))}' "$cfg_file")
-        AWG_PRESHARED_KEY_INT=$(awk -F= '/PresharedKey/ {print substr($0, index($0,$2))}' "$cfg_file")
+        AWG_PUBLIC_KEY_INT=$(awk -F= '/PublicKey/ {val=substr($0,index($0,$2)); gsub(/^[ \t]+|[ \t\r\n]+$/,"",val); print val}' "$cfg_file")
+        AWG_PRESHARED_KEY_INT=$(awk -F= '/PresharedKey/ {val=substr($0,index($0,$2)); gsub(/^[ \t]+|[ \t\r\n]+$/,"",val); print val}' "$cfg_file")
         AWG_ENDPOINT_INT=$(awk -F'[: ]' '/Endpoint/ {print $1}' "$cfg_file")
         AWG_ENDPOINT_PORT_INT=$(awk -F'[: ]' '/Endpoint/ {print $2}' "$cfg_file")
         AWG_ENDPOINT_PORT_INT=${AWG_ENDPOINT_PORT_INT:-51820}
