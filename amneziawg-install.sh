@@ -122,11 +122,13 @@ configure_amneziawg_interface() {
         AWG_H4=$(awk -F' *= *' '/H4/ {print $2}' "$cfg_file")
 
         # Пир
+        endpoint_val=$(awk -F= '/Endpoint/ {val=substr($0,index($0,$2)); gsub(/^[ \t]+|[ \t\r\n]+$/,"",val); print val}' "$cfg_file")
+        AWG_ENDPOINT_INT="${endpoint_val%%:*}"
+        AWG_ENDPOINT_PORT_INT="${endpoint_val##*:}"
+        AWG_ENDPOINT_PORT_INT=${AWG_ENDPOINT_PORT_INT:-51820}
+
         AWG_PUBLIC_KEY_INT=$(awk -F= '/PublicKey/ {val=substr($0,index($0,$2)); gsub(/^[ \t]+|[ \t\r\n]+$/,"",val); print val}' "$cfg_file")
         AWG_PRESHARED_KEY_INT=$(awk -F= '/PresharedKey/ {val=substr($0,index($0,$2)); gsub(/^[ \t]+|[ \t\r\n]+$/,"",val); print val}' "$cfg_file")
-        AWG_ENDPOINT_INT=$(awk -F'[: ]' '/Endpoint/ {print $1}' "$cfg_file")
-        AWG_ENDPOINT_PORT_INT=$(awk -F'[: ]' '/Endpoint/ {print $2}' "$cfg_file")
-        AWG_ENDPOINT_PORT_INT=${AWG_ENDPOINT_PORT_INT:-51820}
     else
         echo "No config file provided or not found, using interactive mode"
 
