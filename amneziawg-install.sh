@@ -3,10 +3,10 @@
 #set -x
 
 # Color variables
-GREEN="\033[32;1m"
-YELLOW="\033[33;1m"
-RED="\033[31;1m"
-RESET="\033[0m"
+GREEN=$'\033[32;1m'
+YELLOW=$'\033[33;1m'
+RED=$'\033[31;1m'
+RESET=$'\033[0m'
 
 # OpenWRT repo must be available for kmod-amneziawg package installation
 check_repo() {
