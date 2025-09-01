@@ -2,14 +2,19 @@
 
 #set -x
 
-#Репозиторий OpenWRT должен быть доступен для установки зависимостей пакета kmod-amneziawg
+# Color variables
+GREEN="\033[32;1m"
+YELLOW="\033[33;1m"
+RED="\033[31;1m"
+RESET="\033[0m"
+
+# OpenWRT repo must be available for kmod-amneziawg package installation
 check_repo() {
-    printf "\033[32;1mChecking OpenWrt repo availability...\033[0m\n"
-    opkg update | grep -q "Failed to download" && printf "\033[32;1mopkg failed. Check internet or date. Command for force ntp sync: ntpd -p ptbtime1.ptb.de\033[0m\n" && exit 1
+    printf "${GREEN}Checking OpenWrt repo availability...${RESET}\n"
+    opkg update | grep -q "Failed to download" && printf "${RED}opkg failed. Check internet or date. Force sync example: ntpd -p ptbtime1.ptb.de${RESET}\n" && exit 1
 }
 
 install_awg_packages() {
-    # Получение pkgarch с наибольшим приоритетом
     PKGARCH=$(opkg print-architecture | awk 'BEGIN {max=0} {if ($3 > max) {max = $3; arch = $2}} END {print arch}')
 
     TARGET=$(ubus call system board | jsonfilter -e '@.release.target' | cut -d '/' -f 1)
@@ -22,73 +27,73 @@ install_awg_packages() {
     mkdir -p "$AWG_DIR"
     
     if opkg list-installed | grep -q kmod-amneziawg; then
-        echo "kmod-amneziawg already installed"
+        echo "${YELLOW}kmod-amneziawg already installed${RESET}"
     else
         KMOD_AMNEZIAWG_FILENAME="kmod-amneziawg${PKGPOSTFIX}"
         DOWNLOAD_URL="${BASE_URL}v${VERSION}/${KMOD_AMNEZIAWG_FILENAME}"
         wget -O "$AWG_DIR/$KMOD_AMNEZIAWG_FILENAME" "$DOWNLOAD_URL"
 
         if [ $? -eq 0 ]; then
-            echo "kmod-amneziawg file downloaded successfully"
+            echo "${GREEN}kmod-amneziawg file downloaded successfully${RESET}"
         else
-            echo "Error downloading kmod-amneziawg. Please, install kmod-amneziawg manually and run the script again"
+            echo "${RED}Error downloading kmod-amneziawg. Please install manually and run again${RESET}"
             exit 1
         fi
         
         opkg install "$AWG_DIR/$KMOD_AMNEZIAWG_FILENAME"
 
         if [ $? -eq 0 ]; then
-            echo "kmod-amneziawg file downloaded successfully"
+            echo "${GREEN}kmod-amneziawg installed successfully${RESET}"
         else
-            echo "Error installing kmod-amneziawg. Please, install kmod-amneziawg manually and run the script again"
+            echo "${RED}Error installing kmod-amneziawg. Please install manually and run again${RESET}"
             exit 1
         fi
     fi
 
     if opkg list-installed | grep -q amneziawg-tools; then
-        echo "amneziawg-tools already installed"
+        echo "${YELLOW}amneziawg-tools already installed${RESET}"
     else
         AMNEZIAWG_TOOLS_FILENAME="amneziawg-tools${PKGPOSTFIX}"
         DOWNLOAD_URL="${BASE_URL}v${VERSION}/${AMNEZIAWG_TOOLS_FILENAME}"
         wget -O "$AWG_DIR/$AMNEZIAWG_TOOLS_FILENAME" "$DOWNLOAD_URL"
 
         if [ $? -eq 0 ]; then
-            echo "amneziawg-tools file downloaded successfully"
+            echo "${GREEN}amneziawg-tools file downloaded successfully${RESET}"
         else
-            echo "Error downloading amneziawg-tools. Please, install amneziawg-tools manually and run the script again"
+            echo "${RED}Error downloading amneziawg-tools. Please install manually and run again${RESET}"
             exit 1
         fi
 
         opkg install "$AWG_DIR/$AMNEZIAWG_TOOLS_FILENAME"
 
         if [ $? -eq 0 ]; then
-            echo "amneziawg-tools file downloaded successfully"
+            echo "${GREEN}amneziawg-tools installed successfully${RESET}"
         else
-            echo "Error installing amneziawg-tools. Please, install amneziawg-tools manually and run the script again"
+            echo "${RED}Error installing amneziawg-tools. Please install manually and run again${RESET}"
             exit 1
         fi
     fi
     
     if opkg list-installed | grep -q luci-app-amneziawg; then
-        echo "luci-app-amneziawg already installed"
+        echo "${YELLOW}luci-app-amneziawg already installed${RESET}"
     else
         LUCI_APP_AMNEZIAWG_FILENAME="luci-app-amneziawg${PKGPOSTFIX}"
         DOWNLOAD_URL="${BASE_URL}v${VERSION}/${LUCI_APP_AMNEZIAWG_FILENAME}"
         wget -O "$AWG_DIR/$LUCI_APP_AMNEZIAWG_FILENAME" "$DOWNLOAD_URL"
 
         if [ $? -eq 0 ]; then
-            echo "luci-app-amneziawg file downloaded successfully"
+            echo "${GREEN}luci-app-amneziawg file downloaded successfully${RESET}"
         else
-            echo "Error downloading luci-app-amneziawg. Please, install luci-app-amneziawg manually and run the script again"
+            echo "${RED}Error downloading luci-app-amneziawg. Please install manually and run again${RESET}"
             exit 1
         fi
 
         opkg install "$AWG_DIR/$LUCI_APP_AMNEZIAWG_FILENAME"
 
         if [ $? -eq 0 ]; then
-            echo "luci-app-amneziawg file downloaded successfully"
+            echo "${GREEN}luci-app-amneziawg installed successfully${RESET}"
         else
-            echo "Error installing luci-app-amneziawg. Please, install luci-app-amneziawg manually and run the script again"
+            echo "${RED}Error installing luci-app-amneziawg. Please install manually and run again${RESET}"
             exit 1
         fi
     fi
@@ -105,9 +110,9 @@ configure_amneziawg_interface() {
     ZONE_NAME="awg3"
 
     if [ -n "$cfg_file" ] && [ -f "$cfg_file" ]; then
-        echo "Parsing config file"
+        echo "${YELLOW}Parsing config file${RESET}"
 
-        # Интерфейс
+        # Interface
         AWG_PRIVATE_KEY_INT=$(awk -F= '/PrivateKey/ {val=substr($0,index($0,$2)); gsub(/^[ \t]+|[ \t\r\n]+$/,"",val); print val}' "$cfg_file")
         AWG_IP=$(awk -F' *= *' '/Address/ {print $2}' "$cfg_file")
 
@@ -121,7 +126,7 @@ configure_amneziawg_interface() {
         AWG_H3=$(awk -F' *= *' '/H3/ {print $2}' "$cfg_file")
         AWG_H4=$(awk -F' *= *' '/H4/ {print $2}' "$cfg_file")
 
-        # Пир
+        # Peer
         endpoint_val=$(awk -F= '/Endpoint/ {val=substr($0,index($0,$2)); gsub(/^[ \t]+|[ \t\r\n]+$/,"",val); print val}' "$cfg_file")
         AWG_ENDPOINT_INT="${endpoint_val%%:*}"
         AWG_ENDPOINT_PORT_INT="${endpoint_val##*:}"
@@ -130,7 +135,7 @@ configure_amneziawg_interface() {
         AWG_PUBLIC_KEY_INT=$(awk -F= '/PublicKey/ {val=substr($0,index($0,$2)); gsub(/^[ \t]+|[ \t\r\n]+$/,"",val); print val}' "$cfg_file")
         AWG_PRESHARED_KEY_INT=$(awk -F= '/PresharedKey/ {val=substr($0,index($0,$2)); gsub(/^[ \t]+|[ \t\r\n]+$/,"",val); print val}' "$cfg_file")
     else
-        echo "No config file provided or not found, using interactive mode"
+        echo "${YELLOW}No config file provided or not found, switching to interactive mode${RESET}"
 
         read -r -p "Enter the private key (from [Interface]):"$'\n' AWG_PRIVATE_KEY_INT
 
@@ -139,12 +144,12 @@ configure_amneziawg_interface() {
             if echo "$AWG_IP" | egrep -oq '^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]+$'; then
                 break
             else
-                echo "This IP is not valid. Please repeat"
+                echo "${RED}This IP is not valid. Please repeat${RESET}"
             fi
         done
 
         read -r -p "Enter the public key (from [Peer]):"$'\n' AWG_PUBLIC_KEY_INT
-        read -r -p "If use PresharedKey, Enter this (from [Peer]). If your don't use leave blank:"$'\n' AWG_PRESHARED_KEY_INT
+        read -r -p "If use PresharedKey, Enter this (from [Peer]). If not, leave blank:"$'\n' AWG_PRESHARED_KEY_INT
         read -r -p "Enter Endpoint host without port (Domain or IP) (from [Peer]):"$'\n' AWG_ENDPOINT_INT
 
         read -r -p "Enter Endpoint host port (from [Peer]) [51820]:"$'\n' AWG_ENDPOINT_PORT_INT
@@ -197,7 +202,7 @@ configure_amneziawg_interface() {
     uci commit network
 
     if ! uci show firewall | grep -q "@zone.*name='${ZONE_NAME}'"; then
-        printf "\033[32;1mZone Create\033[0m\n"
+        printf "${GREEN}Zone created${RESET}\n"
         uci add firewall zone
         uci set firewall.@zone[-1].name=$ZONE_NAME
         uci set firewall.@zone[-1].network=$INTERFACE_NAME
@@ -211,7 +216,7 @@ configure_amneziawg_interface() {
     fi
 
     if ! uci show firewall | grep -q "@forwarding.*name='${ZONE_NAME}'"; then
-        printf "\033[32;1mConfigured forwarding\033[0m\n"
+        printf "${GREEN}Configured forwarding${RESET}\n"
         uci add firewall forwarding
         uci set firewall.@forwarding[-1]=forwarding
         uci set firewall.@forwarding[-1].name="${ZONE_NAME}-lan"
@@ -223,37 +228,31 @@ configure_amneziawg_interface() {
 }
 
 check_repo
-
 install_awg_packages
 
 read -r -p "Config file path (empty = manual setup, e.g. ~/amnezia_for_awg.conf): " AWG_CONFIG_FILE
-
 AWG_CONFIG_FILE=$(eval echo "$AWG_CONFIG_FILE")
 
 if [ -n "$AWG_CONFIG_FILE" ] && [ -f "$AWG_CONFIG_FILE" ]; then
-    echo "Using config file: $AWG_CONFIG_FILE"
+    echo "${GREEN}Using config file: $AWG_CONFIG_FILE${RESET}"
     configure_amneziawg_interface "$AWG_CONFIG_FILE"
 else
-    printf "\033[32;1mConfigure amneziawg interface now? (y/n): \033[0m"
+    printf "${YELLOW}Configure amneziawg interface now? (y/n): ${RESET}"
     read IS_SHOULD_CONFIGURE_AWG_INTERFACE
 
     if [ "$IS_SHOULD_CONFIGURE_AWG_INTERFACE" = "y" ] || [ "$IS_SHOULD_CONFIGURE_AWG_INTERFACE" = "Y" ]; then
         configure_amneziawg_interface
     else
-        printf "\033[32;1mSkipping amneziawg interface configuration.\033[0m\n"
+        printf "${RED}Skipping amneziawg interface configuration.${RESET}\n"
     fi
 fi
 
-
-echo -e "${YELLOW}To start the AWG interface, you need to restart your router. Do you want to do this now? (y/n): ${RESET}"
+printf "${YELLOW}To start the AWG interface, you need to restart your router. Do you want to do this now? (y/n): ${RESET}"
 read RESTART_ROUTER
 
 if [ "$RESTART_ROUTER" = "y" ] || [ "$RESTART_ROUTER" = "Y" ]; then
-    echo -e "Reload Router..."
+    echo -e "${GREEN}Reloading router...${RESET}"
     reboot
-
 else
     echo -e "${YELLOW}You can manually restart with the command: ${GREEN}reboot${RESET}"
 fi
-
-
