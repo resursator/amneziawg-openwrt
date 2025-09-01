@@ -230,7 +230,7 @@ configure_amneziawg_interface() {
 
 check_repo
 install_awg_packages
- 34 
+
 read -r -p "Config file path (empty = manual setup, e.g. ~/amnezia_for_awg.conf): " AWG_CONFIG_FILE
 AWG_CONFIG_FILE=$(eval echo "$AWG_CONFIG_FILE")
 
