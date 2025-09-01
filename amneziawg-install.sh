@@ -10,8 +10,8 @@ RESET="\033[0m"
 
 # OpenWRT repo must be available for kmod-amneziawg package installation
 check_repo() {
-    printf "${GREEN}Checking OpenWrt repo availability...${RESET}\n"
-    opkg update | grep -q "Failed to download" && printf "${RED}opkg failed. Check internet or date. Force sync example: ntpd -p ptbtime1.ptb.de${RESET}\n" && exit 1
+    printf "${GREEN}Checking OpenWrt repo availability...${RESET}\n\n"
+    opkg update | grep -q "Failed to download" && printf "${RED}opkg failed. Check internet or date. Force sync example: ntpd -p ptbtime1.ptb.de${RESET}\n\n" && exit 1
 }
 
 install_awg_packages() {
@@ -27,73 +27,73 @@ install_awg_packages() {
     mkdir -p "$AWG_DIR"
     
     if opkg list-installed | grep -q kmod-amneziawg; then
-        printf "${YELLOW}kmod-amneziawg already installed${RESET}\n"
+        printf "${YELLOW}kmod-amneziawg already installed${RESET}\n\n"
     else
         KMOD_AMNEZIAWG_FILENAME="kmod-amneziawg${PKGPOSTFIX}"
         DOWNLOAD_URL="${BASE_URL}v${VERSION}/${KMOD_AMNEZIAWG_FILENAME}"
         wget -O "$AWG_DIR/$KMOD_AMNEZIAWG_FILENAME" "$DOWNLOAD_URL"
 
         if [ $? -eq 0 ]; then
-            printf "${GREEN}kmod-amneziawg file downloaded successfully${RESET}\n"
+            printf "${GREEN}kmod-amneziawg file downloaded successfully${RESET}\n\n"
         else
-            printf "${RED}Error downloading kmod-amneziawg. Please install manually and run again${RESET}\n"
+            printf "${RED}Error downloading kmod-amneziawg. Please install manually and run again${RESET}\n\n"
             exit 1
         fi
         
         opkg install "$AWG_DIR/$KMOD_AMNEZIAWG_FILENAME"
 
         if [ $? -eq 0 ]; then
-            printf "${GREEN}kmod-amneziawg installed successfully${RESET}\n"
+            printf "${GREEN}kmod-amneziawg installed successfully${RESET}\n\n"
         else
-            printf "${RED}Error installing kmod-amneziawg. Please install manually and run again${RESET}\n"
+            printf "${RED}Error installing kmod-amneziawg. Please install manually and run again${RESET}\n\n"
             exit 1
         fi
     fi
 
     if opkg list-installed | grep -q amneziawg-tools; then
-        printf "${YELLOW}amneziawg-tools already installed${RESET}\n"
+        printf "${YELLOW}amneziawg-tools already installed${RESET}\n\n"
     else
         AMNEZIAWG_TOOLS_FILENAME="amneziawg-tools${PKGPOSTFIX}"
         DOWNLOAD_URL="${BASE_URL}v${VERSION}/${AMNEZIAWG_TOOLS_FILENAME}"
         wget -O "$AWG_DIR/$AMNEZIAWG_TOOLS_FILENAME" "$DOWNLOAD_URL"
 
         if [ $? -eq 0 ]; then
-            printf "${GREEN}amneziawg-tools file downloaded successfully${RESET}\n"
+            printf "${GREEN}amneziawg-tools file downloaded successfully${RESET}\n\n"
         else
-            printf "${RED}Error downloading amneziawg-tools. Please install manually and run again${RESET}\n"
+            printf "${RED}Error downloading amneziawg-tools. Please install manually and run again${RESET}\n\n"
             exit 1
         fi
 
         opkg install "$AWG_DIR/$AMNEZIAWG_TOOLS_FILENAME"
 
         if [ $? -eq 0 ]; then
-            printf "${GREEN}amneziawg-tools installed successfully${RESET}\n"
+            printf "${GREEN}amneziawg-tools installed successfully${RESET}\n\n"
         else
-            printf "${RED}Error installing amneziawg-tools. Please install manually and run again${RESET}\n"
+            printf "${RED}Error installing amneziawg-tools. Please install manually and run again${RESET}\n\n"
             exit 1
         fi
     fi
     
     if opkg list-installed | grep -q luci-app-amneziawg; then
-        printf "${YELLOW}luci-app-amneziawg already installed${RESET}\n"
+        printf "${YELLOW}luci-app-amneziawg already installed${RESET}\n\n"
     else
         LUCI_APP_AMNEZIAWG_FILENAME="luci-app-amneziawg${PKGPOSTFIX}"
         DOWNLOAD_URL="${BASE_URL}v${VERSION}/${LUCI_APP_AMNEZIAWG_FILENAME}"
         wget -O "$AWG_DIR/$LUCI_APP_AMNEZIAWG_FILENAME" "$DOWNLOAD_URL"
 
         if [ $? -eq 0 ]; then
-            printf "${GREEN}luci-app-amneziawg file downloaded successfully${RESET}\n"
+            printf "${GREEN}luci-app-amneziawg file downloaded successfully${RESET}\n\n"
         else
-            printf "${RED}Error downloading luci-app-amneziawg. Please install manually and run again${RESET}\n"
+            printf "${RED}Error downloading luci-app-amneziawg. Please install manually and run again${RESET}\n\n"
             exit 1
         fi
 
         opkg install "$AWG_DIR/$LUCI_APP_AMNEZIAWG_FILENAME"
 
         if [ $? -eq 0 ]; then
-            printf "${GREEN}luci-app-amneziawg installed successfully${RESET}\n"
+            printf "${GREEN}luci-app-amneziawg installed successfully${RESET}\n\n"
         else
-            printf "${RED}Error installing luci-app-amneziawg. Please install manually and run again${RESET}\n"
+            printf "${RED}Error installing luci-app-amneziawg. Please install manually and run again${RESET}\n\n"
             exit 1
         fi
     fi
@@ -110,7 +110,7 @@ configure_amneziawg_interface() {
     ZONE_NAME="awg3"
 
     if [ -n "$cfg_file" ] && [ -f "$cfg_file" ]; then
-        printf "${YELLOW}Parsing config file${RESET}\n"
+        printf "${YELLOW}Parsing config file${RESET}\n\n"
 
         # Interface
         AWG_PRIVATE_KEY_INT=$(awk -F= '/PrivateKey/ {val=substr($0,index($0,$2)); gsub(/^[ \t]+|[ \t\r\n]+$/,"",val); print val}' "$cfg_file")
@@ -135,7 +135,7 @@ configure_amneziawg_interface() {
         AWG_PUBLIC_KEY_INT=$(awk -F= '/PublicKey/ {val=substr($0,index($0,$2)); gsub(/^[ \t]+|[ \t\r\n]+$/,"",val); print val}' "$cfg_file")
         AWG_PRESHARED_KEY_INT=$(awk -F= '/PresharedKey/ {val=substr($0,index($0,$2)); gsub(/^[ \t]+|[ \t\r\n]+$/,"",val); print val}' "$cfg_file")
     else
-        printf "${YELLOW}No config file provided or not found, switching to interactive mode${RESET}\n"
+        printf "${YELLOW}No config file provided or not found, switching to interactive mode${RESET}\n\n"
 
         read -r -p "Enter the private key (from [Interface]):"$'\n' AWG_PRIVATE_KEY_INT
 
@@ -144,7 +144,7 @@ configure_amneziawg_interface() {
             if echo "$AWG_IP" | egrep -oq '^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]+$'; then
                 break
             else
-                printf "${RED}This IP is not valid. Please repeat${RESET}\n"
+                printf "${RED}This IP is not valid. Please repeat${RESET}\n\n"
             fi
         done
 
@@ -203,7 +203,7 @@ configure_amneziawg_interface() {
     uci commit network
 
     if ! uci show firewall | grep -q "@zone.*name='${ZONE_NAME}'"; then
-        printf "${GREEN}Zone created${RESET}\n"
+        printf "${GREEN}Zone created${RESET}\n\n"
         uci add firewall zone
         uci set firewall.@zone[-1].name=$ZONE_NAME
         uci set firewall.@zone[-1].network=$INTERFACE_NAME
@@ -217,7 +217,7 @@ configure_amneziawg_interface() {
     fi
 
     if ! uci show firewall | grep -q "@forwarding.*name='${ZONE_NAME}'"; then
-        printf "${GREEN}Configured forwarding${RESET}\n"
+        printf "${GREEN}Configured forwarding${RESET}\n\n"
         uci add firewall forwarding
         uci set firewall.@forwarding[-1]=forwarding
         uci set firewall.@forwarding[-1].name="${ZONE_NAME}-lan"
@@ -230,12 +230,12 @@ configure_amneziawg_interface() {
 
 check_repo
 install_awg_packages
-
+ 34 
 read -r -p "Config file path (empty = manual setup, e.g. ~/amnezia_for_awg.conf): " AWG_CONFIG_FILE
 AWG_CONFIG_FILE=$(eval echo "$AWG_CONFIG_FILE")
 
 if [ -n "$AWG_CONFIG_FILE" ] && [ -f "$AWG_CONFIG_FILE" ]; then
-    printf "${GREEN}Using config file: $AWG_CONFIG_FILE${RESET}\n"
+    printf "${GREEN}Using config file: $AWG_CONFIG_FILE${RESET}\n\n"
     configure_amneziawg_interface "$AWG_CONFIG_FILE"
 else
     printf "${YELLOW}Configure amneziawg interface now? (y/n): ${RESET}"
@@ -244,7 +244,7 @@ else
     if [ "$IS_SHOULD_CONFIGURE_AWG_INTERFACE" = "y" ] || [ "$IS_SHOULD_CONFIGURE_AWG_INTERFACE" = "Y" ]; then
         configure_amneziawg_interface
     else
-        printf "${RED}Skipping amneziawg interface configuration.${RESET}\n"
+        printf "${RED}Skipping amneziawg interface configuration.${RESET}\n\n"
     fi
 fi
 
@@ -252,8 +252,8 @@ printf "${YELLOW}To start the AWG interface, you need to restart your router. Do
 read RESTART_ROUTER
 
 if [ "$RESTART_ROUTER" = "y" ] || [ "$RESTART_ROUTER" = "Y" ]; then
-    printf "${GREEN}Reloading router...${RESET}\n"
+    printf "${GREEN}Reloading router...${RESET}\n\n"
     reboot
 else
-    printf "${YELLOW}You can manually restart with the command: ${GREEN}reboot${RESET}\n"
+    printf "${YELLOW}You can manually restart with the command: ${GREEN}reboot${RESET}\n\n"
 fi
